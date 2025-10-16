@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -162,8 +163,19 @@ public class FASTAReader {
 	 *         pattern in the data.
 	 */
 	public List<Integer> search(byte[] pattern) {
-		// TODO
-		return null;
+		List<Integer>posiciones= new ArrayList<Integer>();
+		for(int i=0; i<pattern.length; i++) {
+			try {
+				if(compare(pattern, i)==true)
+					posiciones.add(i);
+			} catch (FASTAException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		return posiciones;
 	}
 
 	/**
