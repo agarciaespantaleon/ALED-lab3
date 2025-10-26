@@ -116,7 +116,17 @@ public class FASTAReaderSuffixes extends FASTAReader {
 				lista.add(posSuffix);
 				found = true; //termina la búsqueda
 			}
+			if(found) {
+				int i=m-1;
+				i--;
 				
+				int j=m+1;
+				j++;
+				}
+			
+			}
+		
+			
 		}
 		return lista;
 	}

@@ -184,15 +184,21 @@ public class FASTAReader {
 	 */
 	public List<Integer> search(byte[] pattern) {
 		List<Integer>posiciones= new ArrayList<Integer>();
+		
+		int medio=pattern.length/2;
 		for(int i=0; i<validBytes; i++) {
 			try {
-				if(compareImproved(pattern, i))
+				if(compareImproved(pattern, i)) {
 					posiciones.add(i);
+					found= true;
+				}
 			} catch (FASTAException e) {
 				System.out.println(e.getMessage());		
 				break;
 			}
 		}
+		
+
 		
 		return posiciones;
 	}
