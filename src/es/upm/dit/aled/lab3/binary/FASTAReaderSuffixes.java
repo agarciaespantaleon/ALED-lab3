@@ -38,7 +38,7 @@ public class FASTAReaderSuffixes extends FASTAReader {
 		for (int i = 0; i < validBytes; i++)
 			suffixes[i] = new Suffix(i);
 		// Sorts the data
-		sort();
+		sort(); //invoco a sort, ordena basado a suffixComparator (ordena objetos Suffix (números) alfabéticamente según el sufijo (palabra) que representan
 	}
 
 	/*
@@ -79,57 +79,63 @@ public class FASTAReaderSuffixes extends FASTAReader {
 	 */
 	@Override
 	public List<Integer> search(byte[] pattern) {
-		List<Integer>lista=new ArrayList<Integer>();
+		//inicialización
+		int lo=0;
+		int hi= this.suffixes.length;
+		boolean found= false;
+		int index=0;
 		
-		int lo= 0;
-		int hi= suffixes.length;
+		List<Integer>resultado= new ArrayList<Integer>();
 		
-		boolean found=false;
-		int index=0; //indica la posición en el array de pattern. una vex coincida la primera letra, tendré que incrementarlo y ver si coincide la segunda, etc. hasta que coincida la secuencia entera
-		
-		while (!found && lo<hi) {
-			int m=(lo+hi)/2;
-			//posSuffix es la posición dentro de content donde empieza el sufijo seleccionado
-			int posSuffix = suffixes[m].suffixIndex; //devuelve un int, la posición del sufijo dentro de content
-			index=0; //cada vez que pruebo un sufijo nuevo, empiezo desde el primer carácter del patrón
 			
-			
-			if(index<pattern.length && posSuffix + index < content.length) {
-				if(pattern[index]==content[posSuffix+index]) { //pattern [index] vs content[posSuffix] --> index++, posSuffix++
-					index++; //si 
-					if(index==pattern.length)
-						found=true;
-				}
-				else if(pattern[index]<content[posSuffix+index]) { //la letra del patrón es menor. me muevo a lado izquierdo del array
-					hi=m;
-					index=0;
-					
-				}else { //la letra del patrón es mayor, me muevo al lado derecho del array 
-					lo=m+1;
-					index=0;
-				}
-			
+		while(!found && hi-lo>1) { //condición de mantenimiento del bucle
+			int m= (lo+hi)/2;
+			int posSuffix=suffixes[m].suffixIndex; //la clase Suffix tiene como atributo el int al que representa el suffix
+			//guardo en posSuffix el int del sufijo en la posición m de suffixes
+			while(posSuffix+index<content.length && index<pattern.length && pattern[index]==content[posSuffix+index]) {
+				index++;
 			}
-			
-			//COINCIDENCIA COMPLETA: si index llega al final del patrón, significa que todos los caracteres coincidieron
-			if(index == pattern.length) {
-				lista.add(posSuffix);
-				found = true; //termina la búsqueda
-			}
-			if(found) {
-				int i=m-1;
-				i--;
+			//COINCIDENCIA COMPLETA
+			if(index==pattern.length) { //si el número de caracteres que coinciden es el número de caracteres del patrón, es que ha habido una coincidencia completa
+				found=true;
+				resultado.add(posSuffix);
 				
-				int j=m+1;
-				j++;
+				//recorrer para atrás
+				int i=1;
+				do {
+					index=0;
+					posSuffix=suffixes[m-i].suffixIndex;
+					while(posSuffix+index<content.length && index<pattern.length && pattern[index]==content[posSuffix+index])
+						index++;
+					if(index==pattern.length)
+						resultado.add(posSuffix);
+					i++;
+				}while(index==pattern.length);
+				
+				//recorrer para delante
+				i=1;
+				do {
+					index=0;
+					posSuffix=suffixes[m+i].suffixIndex;
+					while(posSuffix+index<content.length && index<pattern.length && pattern[index]==content[posSuffix+index])
+						index++;
+					if(index==pattern.length)
+						resultado.add(posSuffix);
+					i++;
+				}while(index==pattern.length);
+				
+				
+			}else{
+				if(pattern[index]<content[posSuffix+index]) {
+					hi=m--; //me voy a la izquierda
+				}else {
+					lo=m++; //me voy a la derecha
+				}index=0; //en ambos casos, pongo el index a 0
 				}
-			
 			}
-		
-			
+		return resultado;
 		}
-		return lista;
-	}
+		
 
 	public static void main(String[] args) {
 		long t1 = System.nanoTime();
