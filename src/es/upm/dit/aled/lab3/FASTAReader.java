@@ -139,15 +139,15 @@ public class FASTAReader {
 		if (position + pattern.length > validBytes) {
 			throw new FASTAException("Pattern goes beyond the end of the file.");
 		}
+		//la excepción de fuera de índice la dejo igual
 		
 			for (int i = 0; i < pattern.length; i++) {
-				if (pattern[i] != content[position + i]) {
+				if (pattern[i] != content[position + i]) 
 					return false;
-					
-				}
 			}
+			//en cuanto una letra del patrón no coincide con la correspondiente de content, devuelvo false
 		
-			return true;
+			return true; //el método debe devolver un boolean. si nunca entro al bucle for es pq todas las letras coinciden, así que devuelvo true (el patrón coincide con el contenido en esa posición)
 		
 		
 	}
@@ -164,13 +164,16 @@ public class FASTAReader {
 		if (position + pattern.length > validBytes) {
 			throw new FASTAException("Pattern goes beyond the end of the file.");
 		}
-		int numErrores=0;
+		//la excepción de fuera de índice la dejo igual
+		
+		int contador=0;
 		for (int i = 0; i < pattern.length; i++) {
-			if (pattern[i] != content[position + i]) {
-				numErrores++;
+				if (pattern[i] != content[position + i]) 
+					contador++;
 			}
-		}
-		return numErrores;
+			//cada vez q encuentro q una letra no coincide, incremento el contador
+			return contador; //estoy devolviendo el número de errores que encuentro
+		
 	}
 
 	/**
@@ -183,24 +186,24 @@ public class FASTAReader {
 	 *         pattern in the data.
 	 */
 	public List<Integer> search(byte[] pattern) {
-		List<Integer>posiciones= new ArrayList<Integer>();
-		
-		int medio=pattern.length/2;
-		for(int i=0; i<validBytes; i++) {
+		List<Integer>indices= new ArrayList<Integer>();
+	
+		for(int i=0; i<this.content.length; i++) {
+			boolean match;
 			try {
-				if(compareImproved(pattern, i)) {
-					posiciones.add(i);
-					found= true;
+				match=this.compareImproved(pattern, i);
+				//guardo true o false según si hay coincidencia o no y lo guardo en "match"
 				}
-			} catch (FASTAException e) {
+			 catch (FASTAException e) {
 				System.out.println(e.getMessage());		
 				break;
+				//si salta una excepcion, no puedo comparar porque me salgo del indice--> break
 			}
+			if(match)
+				indices.add(i);
 		}
-		
-
-		
-		return posiciones;
+		//se podría haber hecho sin la variable aux match
+		return indices;
 	}
 
 	/**
@@ -216,18 +219,23 @@ public class FASTAReader {
 	 *         pattern (with up to 1 errors) in the data.
 	 */
 	public List<Integer> searchSNV(byte[] pattern) {
-		List<Integer>posiciones= new ArrayList<Integer>();
-		for(int i=0; i<validBytes; i++) {
+		List<Integer>indices= new ArrayList<Integer>();
+		
+		for(int i=0; i<this.content.length; i++) {
+			int numErrores;
 			try {
-				if(compareNumErrors(pattern, i)==0||compareNumErrors(pattern, i)==1)
-					posiciones.add(i);
-			} catch (FASTAException e) {
+				numErrores=this.compareNumErrors(pattern, i);
+				//guardo el número de errores encontrados durante la comparación
+				} catch (FASTAException e) {
 				System.out.println(e.getMessage());		
 				break;
+				//si salta una excepcion, no puedo comparar porque me salgo del indice--> break
 			}
+			if(numErrores<=1)
+				indices.add(i);
 		}
-		
-		return posiciones;
+		//si tengo 0 o 1 error (admito hasta 1) añado la posicion a la lista y la devuelvo
+		return indices;
 	}
 
 	public static void main(String[] args) {
